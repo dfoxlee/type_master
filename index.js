@@ -1,17 +1,25 @@
 let wordListWrapper = document.getElementById("word-list-wrapper");
 let resetButton = document.getElementById("reset-button");
 let startButton = document.getElementById("start-button");
+let roundOverSlider = document.getElementById("round-over-slider");
 let introSlider = document.getElementById("intro-slider");
 let wpm = document.getElementById("wpm");
 let time = document.getElementById("time");
+let fastestWpm = document.getElementById("fastest-wpm");
+let outcomeAcceptButton = document.getElementById("outcome-accept-button");
+let outcomeWpm = document.getElementById("outcome-wpm");
+
 
 let wordList = [];
 let letterList = [];
 let currentKeyCheckIndex = 0;
 let currentRowCheckIndex = 0;
+let timerCounter = 60;
 let startTime = 0;
 let record = [];
 let capsLockIndicator = 0;
+let resetGameBool = false;
+let roundOverSliderStatus = "hidden";
 
 let allowableKeys = ["Backspace", "Tab", "Enter", "Shift", "Shift", "CapsLock", " ", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "+", "-", ".", "/","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", ";", "=", ",", "-", ".", "/", "`", "[", "\\", "]", "'", "\"", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_"];
 
@@ -123,13 +131,16 @@ function clearWordListWrapper() {
 }
 
 function resetGame() {
+    resetGameBool = true;
     wordList = [];
     letterList = [];
     currentKeyCheckIndex = 0;
     currentRowCheckIndex = 0;
     record = [];
     startTime = 0;
+    timerCounter = 60;
     
+    time.innerText = "1:00"
     wpm.innerText = 0;
     
     clearWordListWrapper();
@@ -166,36 +177,79 @@ function handleRowDisplay() {
 }
 
 function updateActiveWPM() {
-    const d = new Date();
-    let timeElapsedSinceStart = d.getTime() - startTime;
-    let correct = 0;
-    record.forEach((e) => {correct += e});
+    let timeElapsedSinceStart = 60-timerCounter;
+
     let uncorrected = 0;
+
     record.forEach((e) => {
         if(e == 0) {
             uncorrected++;
         }
     });
-    let totalTyped = currentKeyCheckIndex + 1
-    let grossWPM = ((currentKeyCheckIndex / 5) / timeElapsedSinceStart) * 60000;
-    let newWPM = grossWPM - (uncorrected / timeElapsedSinceStart) * 60000;
-    wpm.innerText = Math.floor(newWPM);
+
+    let grossWPM = ((currentKeyCheckIndex / 5) / timeElapsedSinceStart)*60;
+    let newWPM = grossWPM - (uncorrected / timeElapsedSinceStart)*60;
+    if(!Math.floor(newWPM)) {
+        wpm.innerText = "-";
+        return;
+    }
+    wpm.innerText = Math.floor(grossWPM);
 }
 
-function lightKeyboard(event) {
-    if(allowableKeys.indexOf(event.key) != -1) {
+// function lightKeyboard(event) {
+//     if(allowableKeys.indexOf(event.key) != -1) {
 
+//     }
+// }
+
+function slideRoundOverSlider() {
+    if(roundOverSliderStatus == "visible") {
+        roundOverSliderStatus = "hidden";
+        roundOverSlider.style.left = "100vw";
+    }else {
+        roundOverSliderStatus = "visible";
+        roundOverSlider.style.left = "0";
     }
+}
+
+outcomeAcceptButton.addEventListener("click", slideRoundOverSlider);
+
+function endGame() {
+    if(roundOverSliderStatus == "hidden") {
+        slideRoundOverSlider();
+    }
+    outcomeWpm.innerText = parseInt(wpm.innerText);
+    let currentFastestWpm = parseInt(fastestWpm.innerText);
+    let currentWpm = parseInt(wpm.innerText);
+    if(currentWpm > currentFastestWpm) {
+        fastestWpm.innerText = currentWpm;
+    }
+}
+
+function startTimer() {
+    const timer = setInterval(() => {
+        if(timerCounter <= 0) {
+            clearInterval(timer);
+            return;
+        }
+        timerCounter--;
+        time.innerText = timerCounter
+    }, 1000);
 }
 
 function handleKeydownEvent(event) {
     event.preventDefault();
-    handleRowDisplay();
     
-    if(startTime == 0) {
-        const d = new Date();
-        startTime = d.getTime();
+    if(timerCounter <= 0) {
+        endGame();
+        return;
+    }else if(timerCounter == 60 && currentKeyCheckIndex == 0) {
+        console.log("startTimer");
+        startTimer();
+        resetGameBool = false
     }
+    updateActiveWPM();
+
 
     if(event.key == "Backspace") {
         if(currentKeyCheckIndex == 0) {
@@ -238,6 +292,8 @@ function handleKeydownEvent(event) {
     }else {
         return;
     }
+
+    handleRowDisplay();
 }
 
 window.addEventListener("keydown", handleKeydownEvent);

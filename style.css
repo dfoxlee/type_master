@@ -16,8 +16,53 @@ aside {
     position: fixed;
     height: 100vh;
     width: 100vw;
-    background-color: lightgrey;
     z-index: 1;
+}
+
+#intro-slider {
+    background-color: lightgrey;
+}
+
+#round-over-slider {
+    left: 100vw;
+}
+
+.round-over-wrapper {
+    background-color: orangered;
+    border-radius: 15px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.outcome-wrapper {
+    display: grid;
+    place-content: center;
+}
+
+.outcome-wrapper span {
+    color: lightgrey;
+    margin: 2px auto;
+    font-size: 1.125rem;
+}
+
+.outcome-accept-button {
+    margin-top: 30px;
+    padding: 5px 10px;
+    background-color: lightgrey;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.125rem;
+    cursor:pointer;
+}
+
+.outcome-accept-button:hover {
+    box-shadow: 0 0 5px 2px white;
+}
+.outcome-accept-button:active {
+    background-color: darkgrey;
 }
 
 main {
