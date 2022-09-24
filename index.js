@@ -206,6 +206,7 @@ function slideRoundOverSlider() {
     if(roundOverSliderStatus == "visible") {
         roundOverSliderStatus = "hidden";
         roundOverSlider.style.left = "100vw";
+        resetGame();
     }else {
         roundOverSliderStatus = "visible";
         roundOverSlider.style.left = "0";
